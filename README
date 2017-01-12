@@ -1,0 +1,4 @@
+Source code is under UltimateBot/srs/Main
+Main.java is the main script that handles the other scripts. Each other script will have its own folder underneath that (ex. "Combat").
+
+If you look at the code for the main script, you can see how I hooked the combat script in there (I'm about to add comments). I'll take care of updating the main class, it's just benefitial to see how it actually runs.
