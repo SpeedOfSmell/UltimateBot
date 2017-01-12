@@ -1,4 +1,8 @@
 Source code is under UltimateBot/srs/Main
 Main.java is the main script that handles the other scripts. Each other script will have its own folder underneath that (ex. "Combat").
 
-If you look at the code for the main script, you can see how I hooked the combat script in there (I'm about to add comments). I'll take care of updating the main class, it's just benefitial to see how it actually runs.
+If you look at the code for the main script, you can see how I hooked the combat script in there. I'll take care of updating the main class, it's just benefitial to see how it actually runs.
+
+For now, when you first start the script, there will be a menu and you can select which script you want to run. After you have that selected, for each 'on' method (onStart, onLoop, onExit, onPaint), it checks which script it is running, and it runs that script's cooresponding 'on' method.
+
+I commented the combat script so you can see how I want you to have your scripts work.
