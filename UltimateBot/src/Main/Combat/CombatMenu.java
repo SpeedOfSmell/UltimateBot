@@ -18,6 +18,7 @@ import javax.swing.text.NumberFormatter;
 import org.osbot.rs07.api.map.Area;
 
 
+@SuppressWarnings("serial")
 public class CombatMenu extends JDialog {
 
 	public String monsterType;
@@ -65,8 +66,8 @@ public class CombatMenu extends JDialog {
 		lblMonster.setBounds(10, 11, 61, 14);
 		getContentPane().add(lblMonster);
 		
-		JComboBox cmbMonster = new JComboBox();
-		cmbMonster.setModel(new DefaultComboBoxModel(new String[] {"Man", "Woman", "Goblin", "Cow", "Guard", "Hill Giant"}));
+		JComboBox<String> cmbMonster = new JComboBox<String>();
+		cmbMonster.setModel(new DefaultComboBoxModel<String>(new String[] {"Man", "Woman", "Goblin", "Cow", "Guard", "Hill Giant"}));
 		cmbMonster.setEditable(true);
 		cmbMonster.setBounds(10, 30, 95, 20);
 		getContentPane().add(cmbMonster);
@@ -75,8 +76,8 @@ public class CombatMenu extends JDialog {
 		lblFood.setBounds(115, 11, 46, 14);
 		getContentPane().add(lblFood);
 		
-		JComboBox cmbFood = new JComboBox();
-		cmbFood.setModel(new DefaultComboBoxModel(new String[] {"None", "Shrimp", "Sardine", "Bread", "Trout", "Cod", "Salmon", "Tuna", "Lobster", "Bass"}));
+		JComboBox<String> cmbFood = new JComboBox<String>();
+		cmbFood.setModel(new DefaultComboBoxModel<String>(new String[] {"None", "Shrimp", "Sardine", "Bread", "Trout", "Cod", "Salmon", "Tuna", "Lobster", "Bass"}));
 		cmbFood.setEditable(true);
 		cmbFood.setBounds(115, 30, 71, 20);
 		getContentPane().add(cmbFood);
@@ -135,8 +136,8 @@ public class CombatMenu extends JDialog {
 		lblBank.setBounds(10, 71, 46, 14);
 		getContentPane().add(lblBank);
 		
-		JComboBox cmbBank = new JComboBox();
-		cmbBank.setModel(new DefaultComboBoxModel(new String[] {"None", "Edgeville", "Varrock East", "Varrock West"}));
+		JComboBox<String> cmbBank = new JComboBox<String>();
+		cmbBank.setModel(new DefaultComboBoxModel<String>(new String[] {"None", "Edgeville", "Varrock East", "Varrock West"}));
 		cmbBank.setBounds(10, 96, 107, 20);
 		getContentPane().add(cmbBank);
 		

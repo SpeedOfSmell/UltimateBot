@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 
+@SuppressWarnings("serial")
 public class Menu extends JDialog {
 
 	public String scriptToRun;
@@ -45,8 +46,8 @@ public class Menu extends JDialog {
 		lblNewLabel.setBounds(10, 11, 46, 14);
 		getContentPane().add(lblNewLabel);
 		
-		JComboBox cmbScript = new JComboBox();
-		cmbScript.setModel(new DefaultComboBoxModel(new String[] {"Combat"}));
+		JComboBox<String> cmbScript = new JComboBox<String>();
+		cmbScript.setModel(new DefaultComboBoxModel<String>(new String[] {"Combat"}));
 		cmbScript.setBounds(10, 36, 92, 20);
 		getContentPane().add(cmbScript);
 		
