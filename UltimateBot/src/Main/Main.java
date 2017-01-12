@@ -23,16 +23,13 @@ public class Main extends Script {
     public void onStart() throws InterruptedException {
         log("Let's get started!");
         
-        Menu menu = new Menu();
+        Menu menu = new Menu(); //Open up the menu to select script to run. *IMPORTANT* Make sure the menu is set to be modal (refer to Menu class)
         menu.setVisible(true);
         
-        runningScript = menu.scriptToRun;
-        log(runningScript);
-        
-        switch(runningScript) {
+        switch(runningScript = menu.scriptToRun) { //Grab the script to run
         	case "Combat":
-        		combat = new Combat(this);
-        		combat.onStart();
+        		combat = new Combat(this); //Pass a reference to this class. Refer to constructor for more information
+        		combat.onStart(); //Run the combat scripts onStart method
         		break;     		
         }     
         
@@ -42,17 +39,17 @@ public class Main extends Script {
     public int onLoop() throws InterruptedException {
     	switch(runningScript) {
 			case "Combat":
-				combat.onLoop();
+				combat.onLoop(); //Run the combat script's onLoop method
     	} 
     	
-        return random(200, 300);
+        return 0;
     }
  
     @Override
     public void onExit() {
     	switch(runningScript) {
 			case "Combat":
-				combat.onExit();
+				combat.onExit(); //Run the combat script's onExit method
     	}
     }
  
@@ -60,7 +57,7 @@ public class Main extends Script {
     public void onPaint(Graphics2D g) {
     	switch(runningScript) {
 			case "Combat":
-				combat.onPaint(g);
+				combat.onPaint(g); //Run the combat script's onPaint method
     	}
     }
  

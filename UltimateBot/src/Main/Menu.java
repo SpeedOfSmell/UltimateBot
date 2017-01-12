@@ -37,7 +37,7 @@ public class Menu extends JDialog {
 	 * Create the dialog.
 	 */
 	public Menu() {
-		setModal(true);
+		setModal(true); // *VERY IMPORTANT* Without this, the class calling it will not wait for you to close out of the menu
 		setBounds(100, 100, 154, 148);
 		getContentPane().setLayout(null);
 		

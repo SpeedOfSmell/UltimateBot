@@ -37,10 +37,10 @@ public class Combat {
 	private Area bankArea; 
 	private Position startingPosition;
 	
-	private Main s;
+	private Main s; 
 	
-	public Combat(Main s) {
-		this.s = s;
+	public Combat(Main s) { //Make a reference to the main class. Need it to access OSBot API
+		this.s = s; //You can now access OSBot API by putting 's.' in front. Example: log("") becomes s.log("")
 	}
 	
     public void onStart() throws InterruptedException {
