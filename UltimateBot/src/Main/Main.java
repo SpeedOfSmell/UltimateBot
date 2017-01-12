@@ -1,17 +1,10 @@
 package Main;
-import org.osbot.rs07.api.model.Entity;
+import java.awt.Graphics2D;
+
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
- 
-
-
-
-
 
 import Main.Combat.Combat;
-import Main.Combat.CombatMenu;
-
-import java.awt.*;
  
 @ScriptManifest(author = "SpeedOfSmell", info = "", name = "UltimateBot", version = 0, logo = "")
 public class Main extends Script {
@@ -25,6 +18,8 @@ public class Main extends Script {
         
         Menu menu = new Menu(); //Open up the menu to select script to run. *IMPORTANT* Make sure the menu is set to be modal (refer to Menu class)
         menu.setVisible(true);
+        
+        MethodProvider.s = this; //For accesss to OSBot API
         
         switch(runningScript = menu.scriptToRun) { //Grab the script to run
         	case "Combat":

@@ -2,10 +2,7 @@ package Main.Combat;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.osbot.rs07.api.Skills;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
@@ -13,11 +10,9 @@ import org.osbot.rs07.api.model.Entity;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
-import org.osbot.rs07.api.util.ExperienceTracker;
-import org.osbot.rs07.script.Script;
-import org.osbot.rs07.script.ScriptManifest;
 
 import Main.Main;
+import Main.MethodProvider;
  
 public class Combat {
  
@@ -40,7 +35,7 @@ public class Combat {
 	private Main s; 
 	
 	public Combat(Main s) { //Make a reference to the main class. Need it to access OSBot API
-		this.s = s; //You can now access OSBot API by putting 's.' in front. Example: log("") becomes s.log("")
+		this.s = s; //You can now access OSBot API by putting 's.' in front. Example: log("") becomes s.log(""). Static methods are accessed with Main. instead of s.
 	}
 	
     public void onStart() throws InterruptedException {
@@ -125,20 +120,20 @@ public class Combat {
 		
 	}
  
-    public int onLoop() throws InterruptedException {
+	public int onLoop() throws InterruptedException {
     	switch (getState()) {
 			case ATTACK:
 				if (monster != null) {	
 					while(!s.map.canReach(monster.getPosition())) { //while player can't reach the npc
 						s.log("Handling door");
 		    			s.doorHandler.handleNextObstacle(monster);
-	    				s.sleep(s.random(800, 1000));
+	    				Main.sleep(Main.random(800, 1000));
 	    			}
 					monster.interact("Attack");
 				}
 				s.camera.toEntity(monster);
 				s.log("Attacking " + monsterType + ".");
-				s.sleep(s.random(400, 600));		
+				Main.sleep(Main.random(400, 600));		
 				break;
 				
 			case EAT:	    
@@ -147,16 +142,11 @@ public class Combat {
 					
 				s.inventory.interact("Eat", foodType);
 				s.log("Eating " + foodType + ".");
-				s.sleep(s.random(400, 600));
+				Main.sleep(Main.random(400, 600));
 				break;
 				
 			case ANTIBAN:
-				antiBan();
-				s.sleep(s.random(700, 2200));
-				if (s.tabs.getOpen() != Tab.INVENTORY && s.random(1, 2) == 1) {
-						s.log("Returning to inventory.");
-						s.tabs.open(Tab.INVENTORY);
-				}
+				MethodProvider.antiBan(combatSkills[skillToTrain]);
 				break;
 				
 			case CHANGESTYLES:
@@ -171,7 +161,7 @@ public class Combat {
 		    			if (bankBooth != null) {
 			    			bankBooth.interact("Bank");
 			    			s.log("Opening bank booth.");
-			    			s.sleep(s.random(700, 800));
+			    			Main.sleep(Main.random(700, 800));
 		    			}
 		    		} else {
 		    			s.log("Withdrawing all " + foodType + ".");
@@ -180,12 +170,12 @@ public class Combat {
 		    			s.log("Closing bank.");
 		    			s.bank.close();
 		    			
-		    			s.sleep(s.random(800, 1000));
+		    			Main.sleep(Main.random(800, 1000));
 		    			
 		    			s.log("Walking back to monster area.");
 		    			while(!s.map.canReach(startingPosition)) { //while player can't reach the monster area
 		    				s.doorHandler.handleNextObstacle(startingPosition);
-		    				s.sleep(s.random(800, 1000));
+		    				Main.sleep(Main.random(800, 1000));
 		    			}
 		    			s.walking.walk(startingPosition);
 		    		}
@@ -193,117 +183,18 @@ public class Combat {
 		    		s.log("Walking to bank area.");
 		    		while(!s.map.canReach(bankArea.getRandomPosition())) { //while player can't reach the bank
 		    			s.doorHandler.handleNextObstacle(bankArea);
-		    			s.sleep(s.random(800, 1000));
+		    			Main.sleep(Main.random(800, 1000));
 		    		}
 		    		s.walking.walk(bankArea.getRandomPosition());
 		    	}
 				break;
 				
 			case WAIT:
-				s.sleep(s.random(800, 2000));
+				Main.sleep(Main.random(800, 2000));
 				break;
     	}
     	
-        return s.random(200, 300);
-    }
-    
-    public void antiBan() throws InterruptedException {
-    	int rand = s.random(1, 40);
-    	
-    	switch (rand) {	
-	    	case 1:
-				s.camera.movePitch(50);
-				s.log("Rotating camera. (Antiban)");
-				break;
-	    	case 2:
-	    		s.camera.toBottom();
-	    		s.log("Moving camera to bottom. (Antiban)");
-				break;
-			case 3:
-				if (s.tabs.getOpen() != Tab.SKILLS)
-					s.tabs.open(Tab.SKILLS);
-								
-				s.getSkills().hoverSkill(combatSkills[skillToTrain]);
-				s.log("Hovering over skill being trained. (Antiban)");	
-				
-				s.sleep(s.random(400, 600));
-				s.tabs.open(Tab.INVENTORY);
-				break;
-			case 4:
-				s.log("Opening combat tab. (Antiban)");
-				if (s.tabs.getOpen() != Tab.ATTACK)
-					s.tabs.open(Tab.ATTACK);
-							
-				break;
-			case 5:
-				if (s.tabs.getOpen() != Tab.QUEST)
-					s.tabs.open(Tab.QUEST);
-				
-				s.mouse.move(600, 300); //move mouse into quest tab so it can scroll
-				switch(s.random(1, 2)){
-					case 1: 						
-						for(int i = 0; i < s.random(1,7); i++) {
-							s.mouse.scrollUp();
-							s.sleep(s.random(100,400));
-						}
-						s.log("Scrolling up in quest tab random amount of times. (Antiban)");
-						break;
-					case 2:						
-						for(int i = 0; i < s.random(1,7); i++) {
-							s.mouse.scrollDown();
-							s.sleep(s.random(100,400));
-						}
-						s.log("Scrolling down in quest tab random amount of times. (Antiban)");
-						break;
-				}	
-				s.sleep(s.random(1000, 2000));
-
-				break;
-			case 6:
-				s.camera.movePitch(50 + s.random(1, 70));
-				s.log("Moving camera pitch between 50 - 120. (Antiban)");
-				break;
-			case 7:
-				s.camera.movePitch(150 + (s.random(30, 70)));
-				s.log("Moving camera pitch between 180 - 120. (Antiban)");
-				break;
-			case 8:
-				s.log("Opening clan chat tab. (Antiban)");
-				if (s.tabs.getOpen() != Tab.CLANCHAT)
-					s.tabs.open(Tab.CLANCHAT);	
-				break;
-			case 9:
-				s.log("Opening friends tab. (Antiban)");
-				if (s.tabs.getOpen() != Tab.FRIENDS)
-					s.tabs.open(Tab.FRIENDS);		
-				break;
-			case 10:
-				s.mouse.moveOutsideScreen();
-				s.log("Moving mouse out of screen. (Antiban)");
-				s.sleep(s.random(5000, 10000));
-				break;
-			/*case 11:
-				boolean examined = false;
-				List<RS2Object> allEntities = new ArrayList<RS2Object>();
-				allEntities = objects.getAll();
-				
-				do {
-					RS2Object obj = allEntities.get(random(0, allEntities.size() - 1));
-					log("Name: " + obj.getName());
-					if (obj.getName() != null) {
-						obj.interact("Examine");
-						examined = true;
-						log(obj.getName() + " examined. (Antiban)");
-					}
-				} while (!examined);
-				break; */
-			case 12:
-				s.log("Moving mouse randomly. (Antiban)");			
-				for(int i = 0; i < s.random(1,5); i++) {
-					s.mouse.moveRandomly();
-				}			
-				break;
-    	} 		
+        return Main.random(200, 300);
     }
     
     private int determineSkill() {
@@ -351,7 +242,7 @@ public class Combat {
     private void changeStyle(Skill style) throws InterruptedException {
     	if (s.tabs.getOpen() != Tab.ATTACK) {
     		s.tabs.open(Tab.ATTACK);
-			s.sleep(s.random(400, 1000));
+			Main.sleep(Main.random(400, 1000));
     	}
 		
 		switch(style) {				
@@ -369,7 +260,7 @@ public class Combat {
 				break;	
 		}
 			
-		s.sleep(s.random(400, 1000));			
+		Main.sleep(Main.random(400, 1000));			
 		s.tabs.open(Tab.INVENTORY);
 		
 		s.experienceTracker.start(style); //start tracking xp for new skill
@@ -394,7 +285,7 @@ public class Combat {
     		
     		g.setFont(main);
     		
-    		g.drawString("Run Time - " + formatTime(runTime), 10, 85);
+    		g.drawString("Run Time - " + MethodProvider.formatTime(runTime), 10, 85);
     		g.drawString("Experience/hr - " + s.experienceTracker.getGainedXPPerHour(combatSkills[skillToTrain]), 10, 100);
     		g.drawString("Experience to next level - " + (s.getSkills().getExperienceForLevel(s.getSkills().getStatic(combatSkills[skillToTrain]) + 1) - s.getSkills().getExperience(combatSkills[skillToTrain])), 10, 115);
     		g.drawString(combatSkills[skillToTrain] + " levels gained - " + s.experienceTracker.getGainedLevels(combatSkills[skillToTrain]), 10, 130);
@@ -425,13 +316,6 @@ public class Combat {
     	}
     }
     
-    public final String formatTime(final long ms){//Converts milliseconds to hh:mm:ss. It will also leave out hh if its is 0.
-        long s = ms / 1000, m = s / 60, h = m / 60, d = h / 24;
-        s %= 60; m %= 60; h %= 24;
-
-        return d > 0 ? String.format("%02d:%02d:%02d:%02d", d, h, m, s) :
-               h > 0 ? String.format("%02d:%02d:%02d", h, m, s) :
-               String.format("%02d:%02d", m, s);
-    }
+    
  
 }
