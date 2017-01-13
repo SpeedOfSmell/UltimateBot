@@ -7,9 +7,11 @@ import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.model.Entity;
+import org.osbot.rs07.api.model.GroundItem;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
+import org.osbot.rs07.utility.ConditionalSleep;
 
 import Main.Main;
 import Main.MethodProvider;
@@ -28,6 +30,8 @@ public class Combat {
 	private Skill[] combatSkills = new Skill[3];
 	
 	private NPC monster;
+	private NPC monsterFighting;
+	private Position monsterPosition;
 	
 	private Area bankArea; 
 	private Position startingPosition;
@@ -79,7 +83,7 @@ public class Combat {
     }
     
     public enum State {
-		ATTACK, EAT, ANTIBAN, CHANGESTYLES, BANK, WAIT
+		ATTACK, EAT, ANTIBAN, CHANGESTYLES, BANK, WAIT, LOOT
 	};
 	
 	@SuppressWarnings("unchecked")
@@ -90,10 +94,17 @@ public class Combat {
 					{				                  
 						return npc != null && npc.getName().contains(monsterType) && npc.getHealthPercent() > 0 && npc.isAttackable() && npc.hasAction("Attack") && s.map.canReach(npc);				          
 					}				  
-		});	
+		});
+		
+		
+		
 		if (s.getSkills().getDynamic(Skill.HITPOINTS) <= minHp && shouldEat) //If below minimum hp and bot set to eat
 			return State.EAT;
 		
+		if (monsterFighting != null && monsterFighting.getHealthPercent() <= 0 && !s.inventory.isFull()) { //when the monster is dead and inv not full
+			return State.LOOT;
+		}
+			
 		if (!s.myPlayer().isUnderAttack() && !s.myPlayer().isAnimating()) { //If player not busy
 			if (!(s.inventory.contains(foodType)) && shouldBank) //If out of food and supposed to eat
 				return State.BANK;		
@@ -130,9 +141,19 @@ public class Combat {
 	    				Main.sleep(Main.random(800, 1000));
 	    			}
 					monster.interact("Attack");
+								
+					new ConditionalSleep(3000) { //sleep until in combat or 3 seconds 
+						@Override
+						public boolean condition() throws InterruptedException {
+							return s.myPlayer().isUnderAttack();
+						}
+					}.sleep();
+					
+					monsterPosition = monster.getPosition();
 				}
 				s.camera.toEntity(monster);
 				s.log("Attacking " + monsterType + ".");
+				monsterFighting = monster;
 				Main.sleep(Main.random(400, 600));		
 				break;
 				
@@ -142,7 +163,14 @@ public class Combat {
 					
 				s.inventory.interact("Eat", foodType);
 				s.log("Eating " + foodType + ".");
-				Main.sleep(Main.random(400, 600));
+				
+				new ConditionalSleep(3000) { //sleep until hp above threshold or 3 seconds (aka done eating)
+					@Override
+					public boolean condition() throws InterruptedException {
+						return s.getSkills().getDynamic(Skill.HITPOINTS) > minHp;
+					}
+				}.sleep();
+				
 				break;
 				
 			case ANTIBAN:
@@ -187,6 +215,42 @@ public class Combat {
 		    		}
 		    		s.walking.walk(bankArea.getRandomPosition());
 		    	}
+				break;
+				
+			case LOOT:
+				if (monsterFighting.exists()) {
+					monsterPosition = monsterFighting.getPosition(); //update pos as it's dying
+					
+					new ConditionalSleep(1000) { //wait to die
+						@Override
+						public boolean condition() throws InterruptedException {
+							return !monsterFighting.exists();
+						}
+					}.sleep();
+					Main.sleep(500);
+				} 	
+				
+				for (GroundItem item : s.groundItems.get(monsterPosition.getX(), monsterPosition.getY())) {
+					if (item.getName().equals("Bones") && s.map.canReach(item)) {
+						item.interact("Take");
+						
+						new ConditionalSleep(3000) {
+							@Override
+							public boolean condition() throws InterruptedException {
+								return !item.exists();
+							}
+						}.sleep();
+						s.log("Picked up " + item.getName());
+						
+						if (s.inventory.contains("Bones")) {
+							s.inventory.getItem("Bones").interact("Bury");
+							s.log("Buried bones");
+						}
+					}
+				}				
+				
+				
+				monsterFighting = null;
 				break;
 				
 			case WAIT:
