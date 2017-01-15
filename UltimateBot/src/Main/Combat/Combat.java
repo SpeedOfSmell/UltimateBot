@@ -28,6 +28,7 @@ public class Combat {
 	private boolean shouldEat = true; //if bot should eat
 	private boolean shouldBank = true; //if the bot should bank
 	private Skill[] combatSkills = new Skill[3];
+	private String items[];
 	
 	private NPC monster;
 	private NPC monsterFighting;
@@ -67,6 +68,7 @@ public class Combat {
         minHp = menu.minHp;
         levelGoals = menu.levelGoals;
         bankArea = menu.bank;
+        items = menu.items;
         
         if (foodType == "None")
         	shouldEat = false;
@@ -101,7 +103,7 @@ public class Combat {
 		if (s.getSkills().getDynamic(Skill.HITPOINTS) <= minHp && shouldEat) //If below minimum hp and bot set to eat
 			return State.EAT;
 		
-		if (monsterFighting != null && monsterFighting.getHealthPercent() <= 0 && !s.inventory.isFull()) { //when the monster is dead and inv not full
+		if (monsterFighting != null && monsterFighting.getHealthPercent() <= 0) { //when the monster is dead 
 			return State.LOOT;
 		}
 			
@@ -218,7 +220,7 @@ public class Combat {
 				break;
 				
 			case LOOT:
-				if (monsterFighting.exists()) {
+				if (monsterFighting.exists()) { //if monster is still not gone
 					monsterPosition = monsterFighting.getPosition(); //update pos as it's dying
 					
 					new ConditionalSleep(1000) { //wait to die
@@ -230,23 +232,28 @@ public class Combat {
 					Main.sleep(500);
 				} 	
 				
-				for (GroundItem item : s.groundItems.get(monsterPosition.getX(), monsterPosition.getY())) {
-					if (item.getName().equals("Bones") && s.map.canReach(item)) {
-						item.interact("Take");
-						
-						new ConditionalSleep(3000) {
-							@Override
-							public boolean condition() throws InterruptedException {
-								return !item.exists();
+				for (GroundItem loot : s.groundItems.get(monsterPosition.getX(), monsterPosition.getY())) { //for each item on the ground in the monster's position
+					for (String item : items) { //for each item that should be picked up
+						if (loot.getName().equals(item) && s.map.canReach(loot) && (!s.inventory.isFull() || (MethodProvider.isStackable(loot) && s.inventory.contains(item)))) { // Pick it up if the inv is empty or inventory has a stack already
+							loot.interact("Take");
+							
+							new ConditionalSleep(3000) {
+								@Override
+								public boolean condition() throws InterruptedException {
+									return !loot.exists();
+								}
+							}.sleep();
+							s.log("Picked up " + loot.getName());
+							
+							if (s.inventory.contains("Bones")) {
+								s.inventory.getItem("Bones").interact("Bury");
+								s.log("Buried bones");
+								Main.sleep(Main.random(400, 800));
 							}
-						}.sleep();
-						s.log("Picked up " + item.getName());
-						
-						if (s.inventory.contains("Bones")) {
-							s.inventory.getItem("Bones").interact("Bury");
-							s.log("Buried bones");
+							
+							break; //skip to the next loot item
 						}
-					}
+					}			
 				}				
 				
 				
@@ -362,12 +369,6 @@ public class Combat {
     		g.drawString("Food - " + foodType, 10, 300);
     		g.drawString("Banking - " + shouldBank, 10, 315);
     		g.drawString("Minimum HP - " + minHp, 10, 330);
-    		
-    		/*
-    		g.drawString("Attack goal   - " + levelGoals[0], 370, 300); 
-    		g.drawString("Strength goal - " + levelGoals[1], 370, 315); 
-    		g.drawString("Defense goal  - " + levelGoals[2], 370, 330); 
-    		*/
     		
     		g.drawString("Experience to " + levelGoals[0] + " attack", 325, 255); 
     		g.drawString("Experience to " + levelGoals[1] + " strength", 325, 285); 

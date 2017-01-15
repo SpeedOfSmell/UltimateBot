@@ -1,5 +1,6 @@
 package Main;
 
+import org.osbot.rs07.api.model.GroundItem;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
 
@@ -119,4 +120,8 @@ public class MethodProvider {
                h > 0 ? String.format("%02d:%02d:%02d", h, m, s) :
                String.format("%02d:%02d", m, s);
     }
+	
+	public static boolean isStackable(final GroundItem item) {
+		return item.getDefinition().getNotedId() == -1; //All unstackable items should have unnoted id of -1
+	}
 }

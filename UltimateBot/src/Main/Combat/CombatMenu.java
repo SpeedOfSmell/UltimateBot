@@ -16,6 +16,8 @@ import javax.swing.JSeparator;
 import javax.swing.text.NumberFormatter;
 
 import org.osbot.rs07.api.map.Area;
+import javax.swing.JTextPane;
+import javax.swing.JScrollPane;
 
 
 @SuppressWarnings("serial")
@@ -25,6 +27,8 @@ public class CombatMenu extends JDialog {
 	public String foodType;
 	public int minHp;	
 	public Area bank;
+	
+	public String[] items;
 	
 	public int levelGoals[] = new int[3];
 	public boolean exit;
@@ -141,6 +145,17 @@ public class CombatMenu extends JDialog {
 		cmbBank.setBounds(10, 96, 107, 20);
 		getContentPane().add(cmbBank);
 		
+		JLabel lblItems = new JLabel("Items:");
+		lblItems.setBounds(88, 71, 51, 14);
+		getContentPane().add(lblItems);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(125, 68, 119, 48);
+		getContentPane().add(scrollPane);
+		
+		JTextPane txtItems = new JTextPane();
+		scrollPane.setViewportView(txtItems);
+		
 		JButton btnExit = new JButton("Exit");
 		btnExit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -168,6 +183,12 @@ public class CombatMenu extends JDialog {
 				else
 					bank = null;
 				
+				items = txtItems.getText().split("\n"); //Split the items by line
+				
+				for (int i = 0; i < items.length; i++) {
+					items[i] = items[i].trim(); //trim all the spaces
+				}
+				
 				exit = false;
 				dispose();
 			}
@@ -178,8 +199,5 @@ public class CombatMenu extends JDialog {
 		getContentPane().add(separator);
 		
 		
-		
-		
-
 	}
 }
