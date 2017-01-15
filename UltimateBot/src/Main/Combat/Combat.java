@@ -13,6 +13,7 @@ import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.utility.ConditionalSleep;
+import org.osbot.rs07.api.model.Character;
 
 import Main.Main;
 import Main.MethodProvider;
@@ -34,7 +35,7 @@ public class Combat {
 	private int amountOfFood;
 	
 	private NPC monster;
-	private NPC monsterFighting;
+	private Character monsterFighting;
 	private Position monsterPosition;
 	
 	private Area bankArea; 
@@ -99,7 +100,7 @@ public class Combat {
 				{				          
 					public boolean match (NPC npc)				          
 					{				                  
-						return npc != null && npc.getName().contains(monsterType) && npc.getHealthPercent() > 0 && npc.isAttackable() && npc.hasAction("Attack") && s.map.canReach(npc);				          
+						return npc != null && npc.getName().contains(monsterType) && npc.getHealthPercent() > 0 && npc.isAttackable() && npc.hasAction("Attack") && s.map.canReach(npc) && !npc.isUnderAttack();				          
 					}				  
 		});
 		
@@ -140,12 +141,18 @@ public class Combat {
  
 	@SuppressWarnings("unchecked")
 	public int onLoop() throws InterruptedException {
+		if (s.myPlayer().isUnderAttack()) {
+			monsterFighting = s.combat.getFighting();
+			if (monsterFighting != null)
+				monsterPosition = monsterFighting.getPosition();
+		}
+		
     	switch (getState()) {
 			case ATTACK:
 				if (monster != null) {	
 					while(!s.map.canReach(monster.getPosition())) { //while player can't reach the npc
-						s.log("Handling door");
-		    			s.doorHandler.handleNextObstacle(monster);
+						s.log("Walking to monster.");
+		    			s.getWalking().webWalk(monster.getPosition());
 	    				Main.sleep(Main.random(800, 1000));
 	    			}
 					monster.interact("Attack");
@@ -157,11 +164,9 @@ public class Combat {
 						}
 					}.sleep();
 					
-					monsterPosition = monster.getPosition();
 				}
 				s.camera.toEntity(monster);
 				s.log("Attacking " + monsterType + ".");
-				monsterFighting = monster;
 				Main.sleep(Main.random(400, 600));		
 				break;
 				
@@ -231,19 +236,11 @@ public class Combat {
 		    			Main.sleep(Main.random(800, 1000));
 		    			
 		    			s.log("Walking back to monster area.");
-		    			while(!s.map.canReach(startingPosition)) { //while player can't reach the monster area
-		    				s.doorHandler.handleNextObstacle(startingPosition);
-		    				Main.sleep(Main.random(800, 1000));
-		    			}
-		    			s.walking.walk(startingPosition);
+		    			s.getWalking().webWalk(startingPosition);
 		    		}
 		    	} else {
 		    		s.log("Walking to bank area.");
-		    		while(!s.map.canReach(bankArea.getRandomPosition())) { //while player can't reach the bank
-		    			s.doorHandler.handleNextObstacle(bankArea);
-		    			Main.sleep(Main.random(800, 1000));
-		    		}
-		    		s.walking.walk(bankArea.getRandomPosition());
+		    		s.getWalking().webWalk(bankArea);
 		    	}
 				break;
 				
@@ -251,7 +248,7 @@ public class Combat {
 				if (monsterFighting.exists()) { //if monster is still not gone
 					monsterPosition = monsterFighting.getPosition(); //update pos as it's dying
 					
-					new ConditionalSleep(1000) { //wait to die
+					new ConditionalSleep(3000) { //wait to die
 						@Override
 						public boolean condition() throws InterruptedException {
 							return !monsterFighting.exists();
@@ -265,7 +262,7 @@ public class Combat {
 						if (loot.getName().equals(item) && s.map.canReach(loot) && (!s.inventory.isFull() || (MethodProvider.isStackable(loot) && s.inventory.contains(item)))) { // Pick it up if the inv is empty or inventory has a stack already
 							loot.interact("Take");
 							
-							new ConditionalSleep(3000) {
+							new ConditionalSleep(3000) { // Sleep until item disappears
 								@Override
 								public boolean condition() throws InterruptedException {
 									return !loot.exists();
@@ -273,19 +270,26 @@ public class Combat {
 							}.sleep();
 							s.log("Picked up " + loot.getName());
 							
-							if (s.inventory.contains("Bones")) {
-								s.inventory.getItem("Bones").interact("Bury");
-								s.log("Buried bones");
-								Main.sleep(Main.random(400, 800));
+							Main.sleep(Main.random(400, 800));
+							
+							if (s.getSkills().getStatic(Skill.PRAYER) < levelGoals[3]) { // If prayer goal not met
+								if (s.inventory.contains("Bones")) {
+									s.log("Burying bones");
+									s.inventory.getItem("Bones").interact("Bury"); // Bury the bones
+									Main.sleep(Main.random(400, 800));
+								} else if (s.inventory.contains("Big bones")) {
+									s.log("Burying big bones");
+									s.inventory.getItem("Big bones").interact("Bury"); 
+									Main.sleep(Main.random(400, 800));
+								}									
 							}
 							
 							break; //skip to the next loot item
 						}
 					}			
 				}				
-				
-				
 				monsterFighting = null;
+				
 				break;
 				
 			case WAIT:

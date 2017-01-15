@@ -10,7 +10,7 @@ import Main.Combat.Combat;
 public class Main extends Script {
 	
 	private String runningScript;
-	private Combat combat;
+	private Combat combatScript;
  
     @Override
     public void onStart() throws InterruptedException {
@@ -23,8 +23,8 @@ public class Main extends Script {
         
         switch(runningScript = menu.scriptToRun) { //Grab the script to run
         	case "Combat":
-        		combat = new Combat(this); //Pass a reference to this class. Refer to constructor for more information
-        		combat.onStart(); //Run the combat scripts onStart method
+        		combatScript = new Combat(this); //Pass a reference to this class. Refer to constructor for more information
+        		combatScript.onStart(); //Run the combat scripts onStart method
         		break;     		
         }     
         
@@ -34,7 +34,7 @@ public class Main extends Script {
     public int onLoop() throws InterruptedException {
     	switch(runningScript) {
 			case "Combat":
-				combat.onLoop(); //Run the combat script's onLoop method
+				combatScript.onLoop(); //Run the combat script's onLoop method
     	} 
     	
         return 0;
@@ -44,7 +44,7 @@ public class Main extends Script {
     public void onExit() {
     	switch(runningScript) {
 			case "Combat":
-				combat.onExit(); //Run the combat script's onExit method
+				combatScript.onExit(); //Run the combat script's onExit method
     	}
     }
  
@@ -52,7 +52,7 @@ public class Main extends Script {
     public void onPaint(Graphics2D g) {
     	switch(runningScript) {
 			case "Combat":
-				combat.onPaint(g); //Run the combat script's onPaint method
+				combatScript.onPaint(g); //Run the combat script's onPaint method
     	}
     }
  
