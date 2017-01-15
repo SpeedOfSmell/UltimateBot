@@ -8,6 +8,7 @@ import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.model.Entity;
 import org.osbot.rs07.api.model.GroundItem;
+import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
@@ -28,7 +29,9 @@ public class Combat {
 	private boolean shouldEat = true; //if bot should eat
 	private boolean shouldBank = true; //if the bot should bank
 	private Skill[] combatSkills = new Skill[3];
-	private String items[];
+	private String lootItems[];
+	private String invItems[];
+	private int amountOfFood;
 	
 	private NPC monster;
 	private NPC monsterFighting;
@@ -68,7 +71,9 @@ public class Combat {
         minHp = menu.minHp;
         levelGoals = menu.levelGoals;
         bankArea = menu.bank;
-        items = menu.items;
+        lootItems = menu.lootItems;
+        invItems = menu.invItems;
+        amountOfFood = menu.amountOfFood;      
         
         if (foodType == "None")
         	shouldEat = false;
@@ -133,6 +138,7 @@ public class Combat {
 		
 	}
  
+	@SuppressWarnings("unchecked")
 	public int onLoop() throws InterruptedException {
     	switch (getState()) {
 			case ATTACK:
@@ -189,13 +195,35 @@ public class Combat {
 		    		if (!s.bank.isOpen()) {
 		    			Entity bankBooth = s.objects.closest("Bank booth");
 		    			if (bankBooth != null) {
+		    				s.log("Opening bank booth.");
 			    			bankBooth.interact("Bank");
-			    			s.log("Opening bank booth.");
-			    			Main.sleep(Main.random(700, 800));
+			    						    			
+			    			new ConditionalSleep(2000) { //wait to open bank booth
+								@Override
+								public boolean condition() throws InterruptedException {
+									return s.bank.isOpen();
+								}
+							}.sleep();
 		    			}
 		    		} else {
-		    			s.log("Withdrawing all " + foodType + ".");
-		    			s.bank.withdrawAll(foodType);
+		    			s.log("Depositing inventory.");
+		    			s.bank.depositAllExcept(new Filter<Item>() {				          
+							@Override
+							public boolean match(Item item) {
+								for (String invItem : invItems) {
+									if (item.getName().equals(invItem)) 
+										return true;
+								}
+								return false;
+							}				  
+		    			});
+		    			
+		    			Main.sleep(Main.random(500, 1000));
+		    			
+		    			s.log("Withdrawing " + amountOfFood + " " + foodType + ".");
+		    			s.bank.withdraw(foodType, amountOfFood);
+		    			
+		    			Main.sleep(Main.random(500, 1000));
 		    			
 		    			s.log("Closing bank.");
 		    			s.bank.close();
@@ -233,7 +261,7 @@ public class Combat {
 				} 	
 				
 				for (GroundItem loot : s.groundItems.get(monsterPosition.getX(), monsterPosition.getY())) { //for each item on the ground in the monster's position
-					for (String item : items) { //for each item that should be picked up
+					for (String item : lootItems) { //for each item that should be picked up
 						if (loot.getName().equals(item) && s.map.canReach(loot) && (!s.inventory.isFull() || (MethodProvider.isStackable(loot) && s.inventory.contains(item)))) { // Pick it up if the inv is empty or inventory has a stack already
 							loot.interact("Take");
 							

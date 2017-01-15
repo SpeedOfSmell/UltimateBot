@@ -27,8 +27,10 @@ public class CombatMenu extends JDialog {
 	public String foodType;
 	public int minHp;	
 	public Area bank;
+	public int amountOfFood;
 	
-	public String[] items;
+	public String[] lootItems;
+	public String[]invItems;
 	
 	public int levelGoals[] = new int[3];
 	public boolean exit;
@@ -63,7 +65,7 @@ public class CombatMenu extends JDialog {
 		
 		setModal(true);
 		
-		setBounds(100, 100, 275, 305);
+		setBounds(100, 100, 275, 376);
 		getContentPane().setLayout(null);
 		
 		JLabel lblMonster = new JLabel("Monster:");
@@ -87,7 +89,7 @@ public class CombatMenu extends JDialog {
 		getContentPane().add(cmbFood);
 		
 		JLabel lblMinHp = new JLabel("Min HP:");
-		lblMinHp.setBounds(198, 11, 46, 14);
+		lblMinHp.setBounds(137, 61, 46, 14);
 		getContentPane().add(lblMinHp);
 		
 		 NumberFormat format = NumberFormat.getInstance();
@@ -98,63 +100,84 @@ public class CombatMenu extends JDialog {
 		 formatter.setAllowsInvalid(false);
 		
 		JFormattedTextField txtHp = new JFormattedTextField(formatter);
-		txtHp.setBounds(198, 30, 46, 20);
+		txtHp.setText("20");
+		txtHp.setBounds(137, 80, 46, 20);
 		getContentPane().add(txtHp);
 		
 		JFormattedTextField txtAtt = new JFormattedTextField(formatter);
 		txtAtt.setText("70");
-		txtAtt.setBounds(31, 189, 25, 20);
+		txtAtt.setBounds(31, 262, 25, 20);
 		getContentPane().add(txtAtt);
 		
 		JFormattedTextField txtStr = new JFormattedTextField(formatter);
 		txtStr.setText("99");
-		txtStr.setBounds(114, 189, 25, 20);
+		txtStr.setBounds(114, 262, 25, 20);
 		getContentPane().add(txtStr);
 		
 		JFormattedTextField txtDef = new JFormattedTextField(formatter);
 		txtDef.setText("45");
-		txtDef.setBounds(193, 189, 25, 20);
+		txtDef.setBounds(193, 262, 25, 20);
 		getContentPane().add(txtDef);
 			
 		JLabel lblGoals = new JLabel("Goals:");
-		lblGoals.setBounds(10, 140, 46, 14);
+		lblGoals.setBounds(10, 213, 46, 14);
 		getContentPane().add(lblGoals);
 		
 		JLabel lblAttack = new JLabel("Attack:");
-		lblAttack.setBounds(25, 164, 46, 14);
+		lblAttack.setBounds(25, 237, 46, 14);
 		getContentPane().add(lblAttack);
 		
 		JLabel lblStrength = new JLabel("Strength:");
-		lblStrength.setBounds(93, 164, 46, 14);
+		lblStrength.setBounds(93, 237, 46, 14);
 		getContentPane().add(lblStrength);
 		
 		JLabel lblDefense = new JLabel("Defense:");
-		lblDefense.setBounds(172, 164, 46, 14);
+		lblDefense.setBounds(172, 237, 46, 14);
 		getContentPane().add(lblDefense);
 		
 		JSeparator separator_1 = new JSeparator();
-		separator_1.setBounds(0, 61, 259, 2);
+		separator_1.setBounds(0, 111, 259, 2);
 		getContentPane().add(separator_1);
 		
 		JLabel lblBank = new JLabel("Bank:");
-		lblBank.setBounds(10, 71, 46, 14);
+		lblBank.setBounds(10, 61, 46, 14);
 		getContentPane().add(lblBank);
 		
 		JComboBox<String> cmbBank = new JComboBox<String>();
 		cmbBank.setModel(new DefaultComboBoxModel<String>(new String[] {"None", "Edgeville", "Varrock East", "Varrock West"}));
-		cmbBank.setBounds(10, 96, 107, 20);
+		cmbBank.setBounds(10, 80, 107, 20);
 		getContentPane().add(cmbBank);
 		
-		JLabel lblItems = new JLabel("Items:");
-		lblItems.setBounds(88, 71, 51, 14);
+		JLabel lblItems = new JLabel("Loot Items:");
+		lblItems.setBounds(137, 121, 77, 14);
 		getContentPane().add(lblItems);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(125, 68, 119, 48);
+		scrollPane.setBounds(137, 141, 107, 48);
 		getContentPane().add(scrollPane);
 		
 		JTextPane txtItems = new JTextPane();
 		scrollPane.setViewportView(txtItems);
+		
+		JLabel lblAmountOfFood = new JLabel("Food amount:");
+		lblAmountOfFood.setBounds(182, 61, 77, 14);
+		getContentPane().add(lblAmountOfFood);
+		
+		JFormattedTextField txtAmount = new JFormattedTextField(formatter);
+		txtAmount.setText("14");
+		txtAmount.setBounds(199, 80, 46, 20);
+		getContentPane().add(txtAmount);
+		
+		JLabel lblInventoryItems = new JLabel("Inventory Items:");
+		lblInventoryItems.setBounds(10, 121, 95, 14);
+		getContentPane().add(lblInventoryItems);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(10, 141, 107, 48);
+		getContentPane().add(scrollPane_1);
+		
+		JTextPane txtInvItems = new JTextPane();
+		scrollPane_1.setViewportView(txtInvItems);
 		
 		JButton btnExit = new JButton("Exit");
 		btnExit.addActionListener(new ActionListener() {
@@ -163,7 +186,7 @@ public class CombatMenu extends JDialog {
 				dispose();
 			}
 		});
-		btnExit.setBounds(155, 232, 89, 23);
+		btnExit.setBounds(155, 305, 89, 23);
 		getContentPane().add(btnExit);
 		
 		JButton btnStart = new JButton("Start");
@@ -173,6 +196,7 @@ public class CombatMenu extends JDialog {
 				
 				foodType = (String) cmbFood.getSelectedItem();
 				minHp = Integer.parseInt(txtHp.getText());
+				amountOfFood = Integer.parseInt(txtAmount.getText());
 				
 				levelGoals[0] = Integer.parseInt(txtAtt.getText());
 				levelGoals[1] = Integer.parseInt(txtStr.getText());
@@ -183,20 +207,29 @@ public class CombatMenu extends JDialog {
 				else
 					bank = null;
 				
-				items = txtItems.getText().split("\n"); //Split the items by line
+				lootItems = txtItems.getText().split("\n"); //Split the items by line
+				invItems = txtInvItems.getText().split("\n");
 				
-				for (int i = 0; i < items.length; i++) {
-					items[i] = items[i].trim(); //trim all the spaces
+				for (int i = 0; i < lootItems.length; i++) {
+					lootItems[i] = lootItems[i].trim(); //trim all the spaces
+				}
+				
+				for (int i = 0; i < invItems.length; i++) {
+					invItems[i] = invItems[i].trim(); //trim all the spaces
 				}
 				
 				exit = false;
 				dispose();
 			}
 		});
-		btnStart.setBounds(10, 232, 89, 23);
+		btnStart.setBounds(10, 305, 89, 23);
 		getContentPane().add(btnStart);
-		separator.setBounds(0, 127, 259, 2);
+		separator.setBounds(0, 200, 259, 2);
 		getContentPane().add(separator);
+		
+		
+		
+		
 		
 		
 	}
