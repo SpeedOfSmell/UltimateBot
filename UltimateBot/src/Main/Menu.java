@@ -47,7 +47,7 @@ public class Menu extends JDialog {
 		getContentPane().add(lblNewLabel);
 		
 		JComboBox<String> cmbScript = new JComboBox<String>();
-		cmbScript.setModel(new DefaultComboBoxModel<String>(new String[] {"Combat"}));
+		cmbScript.setModel(new DefaultComboBoxModel<String>(new String[] {"Combat", "Woodcutting"}));
 		cmbScript.setBounds(10, 36, 92, 20);
 		getContentPane().add(cmbScript);
 		
@@ -55,7 +55,6 @@ public class Menu extends JDialog {
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				scriptToRun = cmbScript.getSelectedItem().toString();
-				System.out.println(scriptToRun);
 				dispose();
 			}
 		});

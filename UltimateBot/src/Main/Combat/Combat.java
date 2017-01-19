@@ -10,6 +10,7 @@ import org.osbot.rs07.api.model.Entity;
 import org.osbot.rs07.api.model.GroundItem;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.NPC;
+import org.osbot.rs07.api.model.RS2Object;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.utility.ConditionalSleep;
@@ -34,9 +35,10 @@ public class Combat {
 	private String invItems[];
 	private int amountOfFood;
 	
-	private NPC monster;
+	@SuppressWarnings("rawtypes")
 	private Character monsterFighting;
 	private Position monsterPosition;
+	private NPC monster;
 	
 	private Area bankArea; 
 	private Position startingPosition;
@@ -51,7 +53,7 @@ public class Combat {
         s.log("Starting Combat.");
         
         CombatMenu menu = new CombatMenu();
-        menu.setVisible(true);
+        menu.setVisible(true); // If program doesnt wait for this menu to close, make sure the Jdialog menu above is set to modal = true
         
         if(menu.exit) {
         	s.log("Script aborted. Exiting.");
@@ -61,7 +63,7 @@ public class Combat {
         started = true;
         startTime = System.currentTimeMillis();//Gets time in milliseconds and stores it in a variable.
         
-        s.log("BeatThemUp running.");
+        s.log("Combat running.");
         
         combatSkills[0] = Skill.ATTACK; //
         combatSkills[1] = Skill.STRENGTH; //
@@ -198,7 +200,15 @@ public class Combat {
 			case BANK:
 				if (bankArea.contains(s.myPlayer())) {
 		    		if (!s.bank.isOpen()) {
-		    			Entity bankBooth = s.objects.closest("Bank booth");
+		    			Entity bankBooth = s.objects.closest(new Filter<RS2Object>() {
+
+							@Override
+							public boolean match(RS2Object booth) {
+								return booth.getName().equals("Bank booth") && booth != null && booth.hasAction("Bank") && s.map.canReach(booth);
+							}
+		    				
+		    			});
+		    			
 		    			if (bankBooth != null) {
 		    				s.log("Opening bank booth.");
 			    			bankBooth.interact("Bank");
