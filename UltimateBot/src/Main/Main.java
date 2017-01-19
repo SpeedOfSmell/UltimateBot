@@ -5,14 +5,14 @@ import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 import Main.Combat.Combat;
+import Main.Questing.Questing;
 import Main.Woodcutting.Woodcutting;
  
 @ScriptManifest(author = "SpeedOfSmell", info = "", name = "UltimateBot", version = 0, logo = "")
 public class Main extends Script {
 	
 	private String runningScript;
-	private Combat combatScript;
-	private Woodcutting woodcuttingScript;
+	private Script script;
  
     @Override
     public void onStart() throws InterruptedException {
@@ -22,62 +22,39 @@ public class Main extends Script {
         menu.setVisible(true);
         
         MethodProvider.s = this; //For accesss to OSBot API
-        
-        try {
-	        runningScript = menu.scriptToRun;
-	           
-	        switch(runningScript) { //Grab the script to run
-	        	case "Combat":
-	        		combatScript = new Combat(this); //Pass a reference to this class. Refer to constructor for more information
-	        		combatScript.onStart(); //Run the combat scripts onStart method
-	        		break;     	
-	        	case "Woodcutting":
-	        		woodcuttingScript = new Woodcutting(this); //Pass a reference to this class. Refer to constructor for more information
-	        		woodcuttingScript.onStart(); //Run the woodcutting scripts onStart method
-	        		break;     	
-	        }      
-        } catch (Exception e) {
-        	log(e.getMessage());
+      
+        runningScript = menu.scriptToRun;
+           
+        switch(runningScript) { //Grab the script to run
+        	case "Combat":
+        		script = new Combat(this); //Pass a reference to this class. Refer to constructor for more information
+        		break;     	
+        	case "Woodcutting":
+        		script = new Woodcutting(this); //Pass a reference to this class. Refer to constructor for more information
+        		break; 
+        	case "Questing":
+        		script = new Questing(this);
+        		break;
         }
+        
+        log("Starting " + runningScript);
+        script.onStart(); // Run the script's onStart method
     }
  
     @Override
     public int onLoop() throws InterruptedException {
-    	switch(runningScript) {
-			case "Combat":
-				combatScript.onLoop(); //Run the combat script's onLoop method
-				break;
-			case "Woodcutting":
-				woodcuttingScript.onLoop();
-				break;
-    	} 
-    	
-        return 0;
+    	script.onLoop();  	
+        return random(300, 600);
     }
  
     @Override
-    public void onExit() {
-    	switch(runningScript) {
-			case "Combat":
-				combatScript.onExit(); //Run the combat script's onExit method
-				break;
-			case "Woodcutting":
-				woodcuttingScript.onExit();
-				break;
-				
-    	}
+    public void onExit() throws InterruptedException {
+    	script.onExit();
     }
  
     @Override
     public void onPaint(Graphics2D g) {
-    	switch(runningScript) {
-			case "Combat":
-				combatScript.onPaint(g); //Run the combat script's onPaint method
-				break;
-			case "Woodcutting":
-				woodcuttingScript.onPaint(g);
-				break;
-    	}
+    	script.onPaint(g);
     }
  
 }
