@@ -1,6 +1,7 @@
 package Main;
 
 import org.osbot.rs07.api.model.GroundItem;
+import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
 
@@ -123,5 +124,49 @@ public class MethodProvider {
 	
 	public static boolean isStackable(final GroundItem item) {
 		return item.getDefinition().getNotedId() == -1; //All unstackable items should have unnoted id of -1
+	}
+	
+	//buys item from g.e **code by OSBot user uyfgfarOS**
+	public static void buyItem(String searchTerm, String price, String quantityAmount) throws InterruptedException {
+		s.grandExchange.collect();
+		Main.sleep(Main.random(500, 1000));
+		RS2Widget buyButton = s.widgets.get(465, 7, 26);
+		if (buyButton != null)
+		{
+			buyButton.interact();
+			Main.sleep(Main.random(500, 1000));
+			s.keyboard.typeString(searchTerm);
+			Main.sleep(Main.random(500, 1000));
+			RS2Widget buySelection = s.widgets.get(162, 38, 1);
+			
+			if (buySelection != null)
+				{
+				buySelection.interact();
+				Main.sleep(Main.random(700, 1300));
+				RS2Widget buyPrice = s.widgets.get(465, 24, 12);
+				RS2Widget quantity = s.widgets.get(465, 24, 7);
+				
+				if (buyPrice != null)
+				{
+					buyPrice.interact();
+					Main.sleep(Main.random(500, 1000));	
+					s.keyboard.typeString(price);
+					s.keyboard.pressKey(13);
+					Main.sleep(Main.random(500, 1200));	
+					
+					if (quantity != null)
+					{
+						
+						quantity.interact();
+						Main.sleep(Main.random(600, 700));	
+						s.keyboard.typeString(quantityAmount);
+						s.keyboard.pressKey(13);
+						Main.sleep(Main.random(400, 1000));
+						s.grandExchange.confirm();
+
+					}			
+				}
+			}
+		} 
 	}
 }
