@@ -13,13 +13,14 @@ import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.model.RS2Object;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
+import org.osbot.rs07.script.Script;
 import org.osbot.rs07.utility.ConditionalSleep;
 import org.osbot.rs07.api.model.Character;
 
 import Main.Main;
 import Main.MethodProvider;
  
-public class Combat {
+public class Combat extends Script{
  
 	private String monsterType;
 	private String foodType;
@@ -50,8 +51,6 @@ public class Combat {
 	}
 	
     public void onStart() throws InterruptedException {
-        s.log("Starting Combat.");
-        
         CombatMenu menu = new CombatMenu();
         menu.setVisible(true); // If program doesnt wait for this menu to close, make sure the Jdialog menu above is set to modal = true
         
@@ -307,7 +306,7 @@ public class Combat {
 				break;
     	}
     	
-        return Main.random(200, 300);
+        return 0;
     }
     
     private int determineSkill() {

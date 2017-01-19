@@ -9,12 +9,13 @@ import org.osbot.rs07.api.map.Area;
 import org.osbot.rs07.api.model.Entity;
 import org.osbot.rs07.api.model.RS2Object;
 import org.osbot.rs07.api.ui.Skill;
+import org.osbot.rs07.script.Script;
 import org.osbot.rs07.utility.ConditionalSleep;
 
 import Main.Main;
 import Main.MethodProvider;
 
-public class Woodcutting {
+public class Woodcutting extends Script{
 
 	private Main s;
 	
@@ -33,8 +34,6 @@ public class Woodcutting {
 	}
 	
 	public void onStart() {
-		s.log("Starting woodcutting.");
-		
 		WoodcuttingMenu menu = new WoodcuttingMenu();
 		menu.setVisible(true); // If program doesnt wait for this menu to close, make sure the Jdialog menu above is set to modal = true
 		
@@ -59,7 +58,7 @@ public class Woodcutting {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void onLoop() throws InterruptedException{
+	public int onLoop() throws InterruptedException{
 		switch(getState()) {
 			case WOODCUT:
 				Entity tree = s.objects.closest(area, treeType);
@@ -124,6 +123,8 @@ public class Woodcutting {
 			default:
 				break;
 		}
+		
+		return 0;
 	}
 	
 	public enum State {
