@@ -134,12 +134,12 @@ public class MethodProvider {
 	//buys item from g.e **code by OSBot user uyfgfarOS commented by Vlad**
 	public static void buyItem(String searchTerm, String price, String quantityAmount) throws InterruptedException {
 		s.grandExchange.collect(); //free up exchange slots by collecting accepted offers
-		Main.sleep(Main.random(500, 1000));
+		Main.sleep(Main.random(1000, 1300));
 		RS2Widget buyButton = s.widgets.get(465, 7, 26); //the buy button to click to search for item to buy
 		if (buyButton != null)
 		{
 			buyButton.interact(); //click it
-			Main.sleep(Main.random(500, 1000));
+			Main.sleep(Main.random(1000, 1300));
 			s.keyboard.typeString(searchTerm); //type the search term
 			Main.sleep(Main.random(500, 1000));
 			RS2Widget buySelection = s.widgets.get(162, 38, 1); //the first item in list
@@ -154,7 +154,7 @@ public class MethodProvider {
 				if (buyPrice != null)
 				{
 					buyPrice.interact(); //click on the buy price button
-					Main.sleep(Main.random(500, 1000));	
+					Main.sleep(Main.random(1000, 1300));
 					s.keyboard.typeString(price); //type the buy price
 					s.keyboard.pressKey(13); //press enter
 					Main.sleep(Main.random(500, 1200));	
@@ -163,7 +163,7 @@ public class MethodProvider {
 					{
 						
 						quantity.interact(); //click on quantity button
-						Main.sleep(Main.random(600, 700));	
+						Main.sleep(Main.random(1000, 1300));
 						s.keyboard.typeString(quantityAmount);	//type quanitity
 						s.keyboard.pressKey(13); //press enter
 						Main.sleep(Main.random(400, 1000));
@@ -210,6 +210,8 @@ public class MethodProvider {
 			s.log("Withdrawing " + coinsNeeded + " coins.");
 			s.bank.withdraw("Coins", coinsNeeded); //get the amount of coins needed
 		}
+		
+		Main.sleep(Main.random(800, 1200));
 		
 		if (!invContainsItem("Coins", coinsNeeded))  //if at this point we still dont have enough coins
 			return false; //return false to exit method because we dont have enough coins to buy items
@@ -265,5 +267,12 @@ public class MethodProvider {
 	
 	public static boolean invContainsItem(String itemName) { //overload for above method. this makes the quantity optional
 		return invContainsItem(itemName, 1); //call above method with a quantity of 1
+	}
+	
+	public static void clickContinueAsNeeded() throws InterruptedException {
+		while(!s.getDialogues().isPendingOption() && s.dialogues.inDialogue()) { 
+			s.getDialogues().clickContinue();
+			Main.sleep(Main.random(500, 1000));
+		}
 	}
 }
