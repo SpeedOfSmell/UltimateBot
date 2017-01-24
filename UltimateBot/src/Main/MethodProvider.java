@@ -1,9 +1,14 @@
 package Main;
 
+import org.osbot.rs07.api.filter.Filter;
+import org.osbot.rs07.api.map.constants.Banks;
 import org.osbot.rs07.api.model.GroundItem;
+import org.osbot.rs07.api.model.Item;
+import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
+import org.osbot.rs07.utility.ConditionalSleep;
 
 public class MethodProvider {
 	
@@ -126,47 +131,139 @@ public class MethodProvider {
 		return item.getDefinition().getNotedId() == -1; //All unstackable items should have unnoted id of -1
 	}
 	
-	//buys item from g.e **code by OSBot user uyfgfarOS**
+	//buys item from g.e **code by OSBot user uyfgfarOS commented by Vlad**
 	public static void buyItem(String searchTerm, String price, String quantityAmount) throws InterruptedException {
-		s.grandExchange.collect();
+		s.grandExchange.collect(); //free up exchange slots by collecting accepted offers
 		Main.sleep(Main.random(500, 1000));
-		RS2Widget buyButton = s.widgets.get(465, 7, 26);
+		RS2Widget buyButton = s.widgets.get(465, 7, 26); //the buy button to click to search for item to buy
 		if (buyButton != null)
 		{
-			buyButton.interact();
+			buyButton.interact(); //click it
 			Main.sleep(Main.random(500, 1000));
-			s.keyboard.typeString(searchTerm);
+			s.keyboard.typeString(searchTerm); //type the search term
 			Main.sleep(Main.random(500, 1000));
-			RS2Widget buySelection = s.widgets.get(162, 38, 1);
+			RS2Widget buySelection = s.widgets.get(162, 38, 1); //the first item in list
 			
 			if (buySelection != null)
 				{
-				buySelection.interact();
+				buySelection.interact(); // click that first item
 				Main.sleep(Main.random(700, 1300));
-				RS2Widget buyPrice = s.widgets.get(465, 24, 12);
-				RS2Widget quantity = s.widgets.get(465, 24, 7);
+				RS2Widget buyPrice = s.widgets.get(465, 24, 12); //button to type in buy price **if bot writes to chatbox instead of buy price, make sure the widget number hasn't changed**
+				RS2Widget quantity = s.widgets.get(465, 24, 7); //button to type in quantity **same applies as above**
 				
 				if (buyPrice != null)
 				{
-					buyPrice.interact();
+					buyPrice.interact(); //click on the buy price button
 					Main.sleep(Main.random(500, 1000));	
-					s.keyboard.typeString(price);
-					s.keyboard.pressKey(13);
+					s.keyboard.typeString(price); //type the buy price
+					s.keyboard.pressKey(13); //press enter
 					Main.sleep(Main.random(500, 1200));	
 					
 					if (quantity != null)
 					{
 						
-						quantity.interact();
+						quantity.interact(); //click on quantity button
 						Main.sleep(Main.random(600, 700));	
-						s.keyboard.typeString(quantityAmount);
-						s.keyboard.pressKey(13);
+						s.keyboard.typeString(quantityAmount);	//type quanitity
+						s.keyboard.pressKey(13); //press enter
 						Main.sleep(Main.random(400, 1000));
-						s.grandExchange.confirm();
+						s.grandExchange.confirm(); //confirm buy offer
 
 					}			
 				}
 			}
 		} 
+	}
+	
+	//Walks to the Grand Exchange and buys each item in the array passed.
+	//Each String array in the array itemsToBuy is expected to follow this format: {Item Name, Price to Buy at, QuantityNeeded}
+	//Returns: if bot was able to buy required items
+	public static boolean useGrandExchange(String itemsToBuy[][]) throws InterruptedException {
+		s.log("Walking to Grand Exchange");
+		s.getWalking().webWalk(Banks.GRAND_EXCHANGE); // Walk to the G.E
+		
+		int coinsNeeded = 0; //will be total amount needed to buy all the items
+		for (String[] item : itemsToBuy) //iterate through list of items to buy
+			coinsNeeded += Integer.parseInt(item[1]) * Integer.parseInt(item[2]); //item[1] holds price and item[2] holds quantity needed so multiply to find total cost
+		
+		if (!invContainsItem("Coins", coinsNeeded)) { //if we dont have enough coins
+			s.log("Not enough coins in inventory.");
+			@SuppressWarnings("unchecked")
+			NPC banker = s.npcs.closest(new Filter<NPC>() //get the closest banker
+					{				          
+						public boolean match (NPC npc)				          
+						{				                  
+							return npc != null && npc.getName().equals("Banker") && npc.hasAction("Bank") && s.map.canReach(npc);				          
+						}				  
+			});
+			
+			s.log("Opening bank");
+			banker.interact("Bank"); //open the bank
+			
+			new ConditionalSleep(2000) { //wait to open bank booth
+				@Override
+				public boolean condition() throws InterruptedException {
+					return s.bank.isOpen();
+				}
+			}.sleep();
+			
+			s.log("Withdrawing " + coinsNeeded + " coins.");
+			s.bank.withdraw("Coins", coinsNeeded); //get the amount of coins needed
+		}
+		
+		if (!invContainsItem("Coins", coinsNeeded))  //if at this point we still dont have enough coins
+			return false; //return false to exit method because we dont have enough coins to buy items
+			
+		s.log("Have coins. Accessing Grand Exchange.");
+		
+		@SuppressWarnings("unchecked")
+		NPC clerk = s.npcs.closest(new Filter<NPC>() //get the closest grand exchange clerk
+				{				          
+					public boolean match (NPC npc)				          
+					{				                  
+						return npc != null && npc.getName().equals("Grand Exchange Clerk") && npc.hasAction("Exchange") && s.map.canReach(npc);				          
+					}				  
+		});
+		
+		clerk.interact("Exchange"); //open exchange
+		
+		new ConditionalSleep(2000) { //wait to open exchange booth
+			@Override
+			public boolean condition() throws InterruptedException {
+				return s.grandExchange.isOpen();
+			}
+		}.sleep();
+		
+		for (String[] item : itemsToBuy) { //buy each item
+			MethodProvider.buyItem(item[0], item[1], item[2]);
+			Main.sleep(2000);
+		}
+		
+		s.grandExchange.collect();
+		s.log("Items bought.");
+		
+		return true;
+	}
+	
+	public static boolean invContainsItem(String itemName, int quantityNeeded) {
+		int quantityCounted = 0;
+		for (Item invItem : s.inventory.getItems()) { // for each item in the inventory
+			if (invItem != null && invItem.getName().equals(itemName)) { //if the item has the name passed
+				quantityCounted += invItem.getAmount(); //add to the amount counted the amount of the stack of items
+				
+				if (quantityCounted >= quantityNeeded) //if we have enough, stop counting and return true
+					return true;
+								
+				if (invItem.getAmount() > 1) //if it's a stack, return false because there won't be another stack of that item
+											 //and if that stack was enough, it shouldnt get to this point in the code
+					return false;			
+			}
+		}
+		
+		return false; //it should have already returned true if it contained the required amount
+	}
+	
+	public static boolean invContainsItem(String itemName) { //overload for above method. this makes the quantity optional
+		return invContainsItem(itemName, 1); //call above method with a quantity of 1
 	}
 }
