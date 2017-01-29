@@ -53,7 +53,6 @@ public class Questing extends Script{
 				} 
 				
 				Main.sleep(Main.random(500, 1000));
-				
 				if (questToDo != null)
 					questToDo.execute();
 				

@@ -5,6 +5,8 @@ import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 import Main.Combat.Combat;
+import Main.Fishing.Fishing;
+import Main.Mining.Mining;
 import Main.Questing.Questing;
 import Main.Woodcutting.Woodcutting;
  
@@ -34,6 +36,12 @@ public class Main extends Script {
         		break; 
         	case "Questing":
         		script = new Questing(this);
+        		break;
+        	case "Fishing":
+        		script = new Fishing(this);
+        		break;
+        	case "Mining":
+        		script = new Mining(this);
         		break;
         }
         
