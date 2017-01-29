@@ -132,10 +132,13 @@ public class MethodProvider {
 	}
 	
 	//buys item from g.e **code by OSBot user uyfgfarOS commented by Vlad**
+	// nvm dont use this because apparently the OSBot api works
+	@Deprecated
 	public static void buyItem(String searchTerm, String price, String quantityAmount) throws InterruptedException {
 		s.grandExchange.collect(); //free up exchange slots by collecting accepted offers
 		Main.sleep(Main.random(1000, 1300));
 		RS2Widget buyButton = s.widgets.get(465, 7, 26); //the buy button to click to search for item to buy
+		//RS2Widget buyButton = s.getWidgets().singleFilter(s.getWidgets().getAll(), new ActionFilter("Offer to BUY items."));
 		if (buyButton != null)
 		{
 			buyButton.interact(); //click it
@@ -184,7 +187,7 @@ public class MethodProvider {
 		
 		int coinsNeeded = 0; //will be total amount needed to buy all the items
 		for (String[] item : itemsToBuy) //iterate through list of items to buy
-			coinsNeeded += Integer.parseInt(item[1]) * Integer.parseInt(item[2]); //item[1] holds price and item[2] holds quantity needed so multiply to find total cost
+			coinsNeeded += Integer.parseInt(item[2]) * Integer.parseInt(item[3]); //item[2] holds price and item[3] holds quantity needed so multiply to find total cost
 		
 		if (!invContainsItem("Coins", coinsNeeded)) { //if we dont have enough coins
 			s.log("Not enough coins in inventory.");
@@ -207,8 +210,10 @@ public class MethodProvider {
 				}
 			}.sleep();
 			
-			s.log("Withdrawing " + coinsNeeded + " coins.");
-			s.bank.withdraw("Coins", coinsNeeded); //get the amount of coins needed
+			int coinsInInv = getAmountInInventory("Coins");
+			
+			s.log("Withdrawing " + (coinsNeeded - coinsInInv) + " coins.");
+			s.bank.withdraw("Coins", (coinsNeeded - coinsInInv)); //get the amount of coins needed
 		}
 		
 		Main.sleep(Main.random(800, 1200));
@@ -237,11 +242,13 @@ public class MethodProvider {
 		}.sleep();
 		
 		for (String[] item : itemsToBuy) { //buy each item
-			MethodProvider.buyItem(item[0], item[1], item[2]);
+			//MethodProvider.buyItem(item[0], item[1], item[2]);
+			s.grandExchange.buyItem(Integer.parseInt(item[0]), item[1], Integer.parseInt(item[2]), Integer.parseInt(item[3]));
+			Main.sleep(2000);
+			s.grandExchange.collect();
 			Main.sleep(2000);
 		}
-		
-		s.grandExchange.collect();
+				
 		s.log("Items bought.");
 		
 		return true;
@@ -274,5 +281,20 @@ public class MethodProvider {
 			s.getDialogues().clickContinue();
 			Main.sleep(Main.random(500, 1000));
 		}
+	}
+	
+	public static int getAmountInInventory(String itemName) {
+		int amountInInv = 0;
+		
+		for (Item item : s.inventory.getItems()) {
+			if (item != null && item.getName().equals(itemName)) {
+				if (item.getAmount() > 1) //This means its in a stack so no need to check rest of inv
+					return item.getAmount(); 
+				else
+					amountInInv++;
+			}
+		}
+		
+		return amountInInv;
 	}
 }
