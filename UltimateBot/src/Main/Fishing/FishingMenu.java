@@ -40,7 +40,8 @@ public class FishingMenu extends JDialog {
 	}
 	
 	private FishingArea[] fishingAreas = {
-			new FishingArea(new Area(3091, 3226, 3082, 3239), Banks.DRAYNOR, "Net", "Bait")
+			new FishingArea(new Area(3091, 3226, 3082, 3239), Banks.DRAYNOR, "Net", "Bait"),
+			new FishingArea(new Area(3104, 3437, 3108, 3426), Banks.GRAND_EXCHANGE, "Lure", "Bait")
 	};
 	
 	public static void main(String[] args) {
@@ -70,7 +71,7 @@ public class FishingMenu extends JDialog {
 		getContentPane().add(lblArea);
 		
 		JComboBox<String> cmbArea = new JComboBox<String>();
-		cmbArea.setModel(new DefaultComboBoxModel<String>(new String[] {"Draynor Village - Net", "Barbarian Village - Lure", "Karamja - Cage", "Karamja - Harpoon"}));
+		cmbArea.setModel(new DefaultComboBoxModel<String>(new String[] {"Draynor Village - Net", "Barbarian Village - Lure"}));
 		cmbArea.setBounds(10, 33, 151, 20);
 		getContentPane().add(cmbArea);
 		
