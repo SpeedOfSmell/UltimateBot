@@ -45,8 +45,6 @@ public class Woodcutting extends Script{
 		started = true;
         startTime = System.currentTimeMillis();//Gets time in milliseconds and stores it in a variable.
         
-        s.log("Woodcutting script running.");
-        
         shouldBank = menu.shouldBank;
         shouldWorldHop = menu.shouldWorldHop;
         area = menu.area;
