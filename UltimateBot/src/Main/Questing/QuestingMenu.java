@@ -49,7 +49,7 @@ public class QuestingMenu extends JDialog {
 		getContentPane().add(lblQuest);
 		
 		JComboBox<String> cmbQuest = new JComboBox<String>();
-		cmbQuest.setModel(new DefaultComboBoxModel<String>(new String[] {"Imp Catcher", "Witch's Potion"}));
+		cmbQuest.setModel(new DefaultComboBoxModel<String>(new String[] {"Sheep Shearer", "Imp Catcher", "Witch's Potion"}));
 		cmbQuest.setBounds(10, 36, 122, 20);
 		getContentPane().add(cmbQuest);
 		

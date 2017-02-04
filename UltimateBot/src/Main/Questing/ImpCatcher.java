@@ -23,6 +23,12 @@ public class ImpCatcher extends Quest{
 	}
 	
 	@Override
+	public String[][] getItemsToBuy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
 	public void execute() throws InterruptedException {
 		if (shouldBuyItems) { // If we need to buy the items 
 		     // searchTerm, price, quantity 
