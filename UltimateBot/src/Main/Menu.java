@@ -47,7 +47,11 @@ public class Menu extends JDialog {
 		getContentPane().add(lblNewLabel);
 		
 		JComboBox<String> cmbScript = new JComboBox<String>();
+<<<<<<< HEAD
 		cmbScript.setModel(new DefaultComboBoxModel(new String[] {"Combat", "Woodcutting", "Questing", "Fishing", "Mining", "Cooking"}));
+=======
+		cmbScript.setModel(new DefaultComboBoxModel<String>(new String[] {"Combat", "Woodcutting", "Questing", "Fishing", "Mining"}));
+>>>>>>> origin/master
 		cmbScript.setBounds(10, 36, 92, 20);
 		getContentPane().add(cmbScript);
 		

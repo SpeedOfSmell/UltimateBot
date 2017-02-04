@@ -5,7 +5,10 @@ import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 import Main.Combat.Combat;
+<<<<<<< HEAD
 import Main.Cooking.Cooking;
+=======
+>>>>>>> origin/master
 import Main.Fishing.Fishing;
 import Main.Mining.Mining;
 import Main.Questing.Questing;
@@ -44,9 +47,12 @@ public class Main extends Script {
         	case "Mining":
         		script = new Mining(this);
         		break;
+<<<<<<< HEAD
         	case "Cooking":
         		script = new Cooking(this);
         		break;
+=======
+>>>>>>> origin/master
         }
         
         log("Starting " + runningScript);
